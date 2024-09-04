@@ -2,125 +2,158 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useDisclosure } from "@chakra-ui/hooks";
 import EditProductModal from "../../components/EditProductModal";
+import AddProductModal from "../../components/AddproductModal";
+import { v4 as uuidv4 } from "uuid";
+import { searchProduct, sortProducts } from "../../utils/helpers";
 
 const AdminPage = () => {
   const [productsData, setProductsData] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State for the selected product
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isAdd, setIsAdd] = useState(false);
+  const [sortOption, setSortOption] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [currentPage, setCurrentPage] = useState(1); // State for the current page
-  const productsPerPage = 50; // Number of products to show per page
+  const {
+    isOpen: isOpenAdd,
+    onOpen: onOpenAdd,
+    onClose: onCloseAdd,
+  } = useDisclosure();
 
-  const API_URL = "http://localhost:3000/users"; // Define API URL
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 50;
+
+  const API_URL = "http://localhost:3000/users";
 
   const fetchProducts = async () => {
     try {
       const response = await axios.get(API_URL);
-      setProductsData(response.data); // Update state with fetched products
+      setProductsData(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
 
+  const handleAdd = () => {
+    setIsAdd(true);
+    onOpenAdd();
+  };
+
   const handleDelete = async (productId) => {
-    console.log("Deleting product with ID:", productId);
     try {
       await axios.delete(`${API_URL}/${productId}`);
-      console.log("Product deleted successfully.");
-      // Re-fetch the updated products list
-      fetchProducts(); // Fetch products again to update the list
+      fetchProducts();
     } catch (error) {
-      console.log("Error deleting the product:", error);
+      console.error("Error deleting the product:", error);
     }
   };
 
   useEffect(() => {
-    fetchProducts(); // Fetch products when component mounts
-  }, []); // Empty dependency array to run only on mount
+    fetchProducts();
+  }, []);
 
   const handleEdit = (product) => {
-    setSelectedProduct(product); // Set the selected product for editing
-    onOpen(); // Open the modal
+    setSelectedProduct(product);
+    onOpen();
   };
 
-  // Handle the save action from the modal
   const handleSave = async (updatedProduct) => {
     try {
-      // Update the product on the server
-      const response = await axios.put(
-        `${API_URL}/${updatedProduct.ID}`,
-        updatedProduct
-      );
-      console.log("Product updated successfully:", response.data.message);
-
-      window.location.reload();
-      onClose(); // Close the modal after saving
+      await axios.put(`${API_URL}/${updatedProduct.ID}`, updatedProduct);
+      onClose();
+      fetchProducts();
     } catch (error) {
       console.error("Error updating the product:", error);
     }
   };
 
-  // Calculate the index of the first and last product on the current page
+  const handleAddSave = async (product) => {
+    try {
+      await axios.post(`${API_URL}`, {
+        ...product,
+        ID: uuidv4(),
+        Rating: 0,
+        ReviewCount: 0,
+      });
+      fetchProducts();
+    } catch (error) {
+      console.error("Error adding the product:", error);
+    }
+  };
+
+  // Filter and sort products
+  let filteredProducts = searchProduct(productsData, searchQuery);
+  filteredProducts = sortProducts(filteredProducts, sortOption);
+
+  // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = productsData.slice(
+  const currentProducts = filteredProducts.slice(
     indexOfFirstProduct,
     indexOfLastProduct
   );
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(productsData.length / productsPerPage);
-
-  // Handle page change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   return (
-    <div className=" p-5">
+    <div className="p-5">
       <div className="flex flex-col">
         <h1 className="text-2xl font-bold mb-12 text-center">
           Admin Dashboard
         </h1>
+        <div className="filter-functions mb-6 flex flex-col sm:flex-row sm:justify-between">
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border p-2 w-full sm:w-80 rounded-lg shadow-lg mb-4 sm:mb-0"
+            type="text"
+            placeholder="Search By name or product ID"
+          />
+          <div className="filter mb-4 sm:mb-0">
+            <select
+              className="p-2 rounded-lg border"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="">None</option>
+              <option value="ReviewCount">Review Count</option>
+              <option value="Rating">Rating</option>
+            </select>
+          </div>
+          <button
+            className="p-2 bg-blue-600 rounded-lg text-white"
+            onClick={handleAdd}
+          >
+            Add Product
+          </button>
+        </div>
         <div className="overflow-x-auto shadow-2xl">
-          <table className="min-w-full divide-y divide-gray-200 ">
-            <thead className="bg-gray-50 ">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SN
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ProdID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rating
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Review Count
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Brand
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Image
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tags
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                {[
+                  "SN",
+                  "ID",
+                  "ProdID",
+                  "Rating",
+                  "Review Count",
+                  "Category",
+                  "Brand",
+                  "Name",
+                  "Image",
+                  "Description",
+                  "Tags",
+                  "Actions",
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -203,54 +236,73 @@ const AdminPage = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination Controls */}
-        <div className="flex justify-center mt-6">
+        <div className="pagination mt-6 flex flex-wrap justify-center items-center">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-4 py-2 mx-1 ${
+            className={`px-4 py-2 rounded-md mx-1 ${
               currentPage === 1
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-indigo-600 text-white"
-            } rounded-md`}
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white text-blue-600 hover:bg-blue-100"
+            }`}
           >
             Previous
           </button>
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-4 py-2 mx-1 ${
-                currentPage === index + 1
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-200"
-              } rounded-md`}
-            >
-              {index + 1}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+            (pageNumber) => {
+              const isLargeScreen = window.innerWidth >= 768;
+              const shouldDisplay =
+                isLargeScreen || // Always show on large screens
+                pageNumber === 1 || // Always show the first page
+                pageNumber === totalPages || // Always show the last page
+                pageNumber === currentPage || // Always show the current page
+                (pageNumber >= currentPage - 1 &&
+                  pageNumber <= currentPage + 1); // Show current page and one around it
+
+              return (
+                shouldDisplay && (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-4 py-2 rounded-md mx-1 ${
+                      pageNumber === currentPage
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-blue-600 hover:bg-blue-100"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              );
+            }
+          )}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 mx-1 ${
+            className={`px-4 py-2 rounded-md mx-1 ${
               currentPage === totalPages
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-indigo-600 text-white"
-            } rounded-md`}
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white text-blue-600 hover:bg-blue-100"
+            }`}
           >
             Next
           </button>
         </div>
       </div>
 
-      {/* EditProductModal for editing the product details */}
+      {isAdd && (
+        <AddProductModal
+          isOpen={isOpenAdd}
+          onClose={onCloseAdd}
+          onSave={handleAddSave}
+        />
+      )}
       {selectedProduct && (
         <EditProductModal
           isOpen={isOpen}
           onClose={onClose}
-          product={selectedProduct} // Pass the selected product to the modal
-          onSave={handleSave} // Pass the save handler to the modal
+          onSave={handleSave}
+          product={selectedProduct}
         />
       )}
     </div>

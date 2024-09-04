@@ -13,13 +13,13 @@ import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Textarea } from "@chakra-ui/react";
 
-const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
+const AddProductModal = ({ isOpen, onClose, onSave }) => {
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
   // State to manage the form data
   const [formData, setFormData] = useState({
-    ID: product.ID,
+    ID: "",
     Name: "",
     Brand: "",
     Category: "",
@@ -29,19 +29,18 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   });
 
   // Populate the form data when the modal opens
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        ID: product.ID,
-        Name: product.Name || "",
-        Brand: product.Brand || "",
-        Category: product.Category || "",
-        Tags: product.Tags || "",
-        ImageURL: product.ImageURL || "",
-        Description: product.Description || "",
-      });
-    }
-  }, [product]);
+  //   useEffect(() => {
+  //     if (product) {
+  //       setFormData({
+  //         ID: product.ID,
+  //         Name: product.Name || "",
+  //         Brand: product.Brand || "",
+  //         Category: product.Category || "",
+  //         Tags: product.Tags || "",
+  //         ImageURL: product.ImageURL || "",
+  //       });
+  //     }
+  //   }, [product]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -75,7 +74,6 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
               <FormLabel>Product Name</FormLabel>
               <Input
                 required
-                ref={initialRef}
                 placeholder="Product Name"
                 name="Name"
                 value={formData.Name}
@@ -152,4 +150,4 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   );
 };
 
-export default EditProductModal;
+export default AddProductModal;

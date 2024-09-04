@@ -64,7 +64,7 @@ app.post("/users", async (req, res) => {
   try {
     const users = await readCSV();
     const newUser = { id: String(users.length + 1), ...req.body };
-    users.push(newUser);
+    users.unshift(newUser);
     await writeCSV(users);
     res.json(newUser);
   } catch (error) {
