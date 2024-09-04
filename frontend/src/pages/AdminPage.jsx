@@ -22,7 +22,7 @@ const AdminPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 50;
 
-  const API_URL = "http://localhost:3000/users";
+  const API_URL = "http://localhost:3000/products";
 
   const fetchProducts = async () => {
     try {
