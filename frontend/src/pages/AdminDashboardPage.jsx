@@ -4,7 +4,7 @@ import { useDisclosure } from "@chakra-ui/hooks";
 import EditProductModal from "../../components/EditProductModal";
 import AddProductModal from "../../components/AddproductModal";
 import { v4 as uuidv4 } from "uuid";
-import { searchProduct, sortProducts } from "../../utils/helpers";
+import { getToken, searchProduct, sortProducts } from "../../utils/helpers";
 
 const AdminDashboardPage = () => {
   const [productsData, setProductsData] = useState([]);
@@ -13,6 +13,7 @@ const AdminDashboardPage = () => {
   const [sortOption, setSortOption] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const token = getToken();
   const {
     isOpen: isOpenAdd,
     onOpen: onOpenAdd,
@@ -26,7 +27,11 @@ const AdminDashboardPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setProductsData(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -40,7 +45,12 @@ const AdminDashboardPage = () => {
 
   const handleDelete = async (productId) => {
     try {
-      await axios.delete(`${API_URL}/${productId}`);
+      await axios.delete(`${API_URL}/${productId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchProducts();
     } catch (error) {
       console.error("Error deleting the product:", error);
@@ -58,7 +68,12 @@ const AdminDashboardPage = () => {
 
   const handleSave = async (updatedProduct) => {
     try {
-      await axios.put(`${API_URL}/${updatedProduct.ID}`, updatedProduct);
+      await axios.put(`${API_URL}/${updatedProduct.ID}`, updatedProduct, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       onClose();
       fetchProducts();
     } catch (error) {
@@ -68,12 +83,21 @@ const AdminDashboardPage = () => {
 
   const handleAddSave = async (product) => {
     try {
-      await axios.post(`${API_URL}`, {
-        ...product,
-        ID: uuidv4(),
-        Rating: 0,
-        ReviewCount: 0,
-      });
+      await axios.post(
+        `${API_URL}`,
+        {
+          ...product,
+          ID: uuidv4(),
+          Rating: 0,
+          ReviewCount: 0,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       fetchProducts();
     } catch (error) {
       console.error("Error adding the product:", error);

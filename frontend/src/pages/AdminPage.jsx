@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminPage = () => {
+  const API_URL = "http://localhost:3000";
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -18,10 +20,30 @@ const AdminPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
+    const { username, password } = formData;
+    console.log(username, password);
     e.preventDefault();
-    console.log(formData);
-    navigate("/admin/dashboard");
+
+    const response = await axios.post(
+      `${API_URL}/adminLogin`,
+      {
+        username,
+        password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(response);
+    if (response.status === 200) {
+      localStorage.setItem("adminToken", response.data.accessToken);
+      navigate("/admin/dashboard");
+    } else {
+      alert("Invalid Credentials");
+    }
   };
 
   return (
@@ -29,7 +51,7 @@ const AdminPage = () => {
       <h1 className=" font-bold text-2xl mb-6">Admin Login</h1>
       <form
         className=" border p-16 rounded-lg shadow-lg"
-        onSubmit={handleSubmit}
+        onSubmit={handleLogin}
       >
         <FormControl isRequired>
           <FormLabel>Username</FormLabel>

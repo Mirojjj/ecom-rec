@@ -6,11 +6,13 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
+const { authenticateToken, roleAdmin } = require("../middleware/auth.js");
+
 const router = express.Router();
 
-router.get("/", getProducts);
-router.post("/", addProduct);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+router.get("/", authenticateToken, roleAdmin, getProducts);
+router.post("/", authenticateToken, roleAdmin, addProduct);
+router.put("/:id", authenticateToken, roleAdmin, updateProduct);
+router.delete("/:id", authenticateToken, roleAdmin, deleteProduct);
 
 module.exports = router;

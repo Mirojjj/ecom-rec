@@ -19,3 +19,9 @@ export const sortProducts = (products, sortOption) => {
   // Return products unsorted if no sort option is selected
   return products;
 };
+
+//get token from localstorage
+
+export const getToken = () => {
+  return localStorage.getItem("adminToken");
+};
