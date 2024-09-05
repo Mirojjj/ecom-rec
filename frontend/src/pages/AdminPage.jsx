@@ -6,10 +6,12 @@ import axios from "axios";
 
 const AdminPage = () => {
   const API_URL = "http://localhost:3000";
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,24 +27,26 @@ const AdminPage = () => {
     console.log(username, password);
     e.preventDefault();
 
-    const response = await axios.post(
-      `${API_URL}/adminLogin`,
-      {
-        username,
-        password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        `${API_URL}/adminLogin`,
+        {
+          username,
+          password,
         },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.setItem("adminToken", response.data.accessToken);
+        navigate("/admin/dashboard");
       }
-    );
-    console.log(response);
-    if (response.status === 200) {
-      localStorage.setItem("adminToken", response.data.accessToken);
-      navigate("/admin/dashboard");
-    } else {
-      alert("Invalid Credentials");
+    } catch (error) {
+      setError(error.response.data.message);
     }
   };
 
@@ -74,6 +78,9 @@ const AdminPage = () => {
             onChange={handleChange}
           />
         </FormControl>
+        <br />
+        {error && <p className=" text-red-500">{error}</p>}
+
         <div className=" flex justify-center mt-4">
           <button
             className=" bg-blue-500 py-2 px-4 text-white font-bold rounded-lg hover:bg-blue-600"
