@@ -5,6 +5,7 @@ import EditProductModal from "../../components/EditProductModal";
 import AddProductModal from "../../components/AddproductModal";
 import { v4 as uuidv4 } from "uuid";
 import { getToken, searchProduct, sortProducts } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboardPage = () => {
   const [productsData, setProductsData] = useState([]);
@@ -14,6 +15,8 @@ const AdminDashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const token = getToken();
+
+  const navigate = useNavigate();
   const {
     isOpen: isOpenAdd,
     onOpen: onOpenAdd,
@@ -104,6 +107,12 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    navigate("/admin");
+    console.log("logout");
+  };
+
   // Filter and sort products
   let filteredProducts = searchProduct(productsData, searchQuery);
   filteredProducts = sortProducts(filteredProducts, sortOption);
@@ -146,12 +155,20 @@ const AdminDashboardPage = () => {
               <option value="Rating">Rating</option>
             </select>
           </div>
-          <button
-            className="p-2 bg-blue-600 rounded-lg text-white"
-            onClick={handleAdd}
-          >
-            Add Product
-          </button>
+          <div className=" flex gap-2">
+            <button
+              className="p-2 bg-blue-600 rounded-lg text-white"
+              onClick={handleAdd}
+            >
+              Add Product
+            </button>
+            <button
+              className="p-2 bg-red-500 rounded-lg text-white"
+              onClick={handleLogout}
+            >
+              Log Out
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto shadow-2xl">
           <table className="min-w-full divide-y divide-gray-200">
