@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useDisclosure } from "@chakra-ui/hooks";
-import EditProductModal from "../../components/EditProductModal";
-import AddProductModal from "../../components/AddproductModal";
+import EditProductModal from "../components/EditProductModal";
+import AddProductModal from "../components/AddproductModal";
 import { v4 as uuidv4 } from "uuid";
-import { getToken, searchProduct, sortProducts } from "../../utils/helpers";
+import { getToken, searchProduct, sortProducts } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboardPage = () => {
