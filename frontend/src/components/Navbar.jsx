@@ -2,8 +2,17 @@ import React from "react";
 
 const Navbar = () => {
   return (
-    <div className="p-5 flex justify-between items-center w-full">
-      <div className="logo text-black text-2xl font-semibold">Shopkart</div>
+    <div className="py-5 flex justify-between items-center w-full">
+      <div className="logo flex text-black text-2xl font-semibold pl-2 cursor-pointer">
+        <img
+          src="src/assets/logo.png"
+          alt="logo"
+          height={20}
+          width={40}
+          className=" rounded-full"
+        />
+        Shopkart
+      </div>
 
       <input
         type="text"

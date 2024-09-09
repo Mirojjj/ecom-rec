@@ -38,10 +38,18 @@ def home():
 def getTrendingProducts():
     average_ratings = df.groupby(['Name', 'ReviewCount', 'Brand', 'ImageURL'])[
         'Rating'].mean().reset_index()
+    # Calculate weighted score: You can adjust the weight of the rating and review count as needed
+    average_ratings['WeightedScore'] = (
+        average_ratings['Rating'] * 0.7) + (np.log1p(average_ratings['ReviewCount']) * 0.3)
 
-# top 10 recommended items based on rating
-    top_rated_items = average_ratings.sort_values(by='Rating', ascending=False)
+# Sort by the weighted score instead of just rating
+    top_rated_items = average_ratings.sort_values(
+        by='WeightedScore', ascending=False)
+
+# Select the top 12 products
     rating_base_recommendation = top_rated_items.head(12)
+
+# Convert to dictionary and return the result
     result = rating_base_recommendation.to_dict(orient='records')
     return JSONResponse(content=result)
 

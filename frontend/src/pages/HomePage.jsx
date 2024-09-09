@@ -3,6 +3,10 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Banner from "../components/Banner";
 import TrendingProducts from "../components/TrendingProducts";
+import { Box } from "@chakra-ui/react";
+import ImageSlider from "../components/ImageSlider";
+import { SlideData } from "../utils/slidedata";
+import Footer from "../components/Footer";
 const HomePage = () => {
   const API_URL = "http://127.0.0.1:8000/trendings";
   const [trendingProducts, setTrendingProducts] = useState([]);
@@ -23,32 +27,31 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className=" min-h-screen px-[10%] bg-gray-100">
-      <Navbar />
-      <Banner />
-      <h1 className="text-center text-3xl font-bold">Trending Products</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 p-8 ">
-        {trendingProducts.map((product, index) => (
-          <div key={index}>
-            <TrendingProducts
-              name={product.Name}
-              reviewCount={product.ReviewCount}
-              brand={product.Brand}
-              imageUrl={product.ImageURL}
-              ratings={product.Rating}
-            />
-          </div>
-        ))}
+    <div className=" bg-white">
+      <div className=" min-h-screen px-[6%]">
+        <Navbar />
+        {/* <Banner /> */}
+        <Box w="100%" p={4} color="white">
+          <ImageSlider slides={SlideData} />
+        </Box>
+        <h1 className="text-center text-3xl font-bold my-12">
+          Trending Products
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
+          {trendingProducts.map((product, index) => (
+            <div key={index}>
+              <TrendingProducts
+                name={product.Name}
+                reviewCount={product.ReviewCount}
+                brand={product.Brand}
+                imageUrl={product.ImageURL}
+                ratings={product.Rating}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* <div className=" bg-red-400 p-5 flex justify-between items-center ">
-          <div className="logo">Shopkart</div>
-          <input className="searchbar w-96" placeholder="Search Products" />
-          <div className="func flex items-center">
-            <div>Account</div>
-            <div>Cart</div>
-          </div>
-        </div> */}
+      <Footer />
     </div>
   );
 };
