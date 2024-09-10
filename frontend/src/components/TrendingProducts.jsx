@@ -10,7 +10,7 @@ const TrendingProducts = ({ name, reviewCount, brand, imageUrl, ratings }) => {
         className=" w-48 h-48 object-cover rounded-md mb-4"
       />
 
-      <div className="flex flex-col items-start gap-1">
+      <div className="flex flex-col items-start gap-1  w-full">
         <div className="text-lg font-semibold mb-1 tracking-tight line-clamp-2 text-ellipsis">
           {name}
         </div>
