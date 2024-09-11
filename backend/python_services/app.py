@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
-from rapidfuzz import process
+from rapidfuzz import process, fuzz
 from fastapi.responses import JSONResponse
 
 # Run with: uvicorn app:app --reload
@@ -70,7 +70,9 @@ def content_based_recommendations(search_term: str, top_n: int = Query(10)):
 
     # Use fuzzy matching to find the closest match for the search term
     matched_item = process.extractOne(
-        search_term_normalized, df['Name_normalized'])
+        search_term_normalized, df['Name_normalized'], scorer=fuzz.partial_ratio)
+
+    print(matched_item)
 
     # Adjust the threshold as needed
     if matched_item is None or matched_item[1] < 50:
@@ -88,9 +90,11 @@ def content_based_recommendations(search_term: str, top_n: int = Query(10)):
     # Create a TF-IDF vectorizer for item descriptions/tags
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
 
+    df['Combined'] = df['Tags'].fillna('') + " " + df['Description'].fillna('')
+
     # Apply TF-IDF vectorization to item descriptions/tags
     tfidf_matrix_content = tfidf_vectorizer.fit_transform(
-        df['Tags'].fillna(''))
+        df['Combined'])
 
     # Calculate cosine similarity between items based on descriptions/tags
     cosine_similarities_content = cosine_similarity(
