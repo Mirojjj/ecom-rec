@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const csvParser = require("csv-parser");
 const fastCsv = require("fast-csv");
+const { v4: uuidv4 } = require("uuid");
 
 const CSV_FILE_PATH = path.join(
   __dirname,
@@ -50,7 +51,10 @@ async function getProducts(req, res) {
 async function addProduct(req, res) {
   try {
     const users = await readCSV();
-    const newUser = { id: String(users.length + 1), ...req.body };
+    const newUser = {
+      ProdID: users.length + 1,
+      ...req.body,
+    };
     users.unshift(newUser);
     await writeCSV(users);
     res.status(200).json(newUser);

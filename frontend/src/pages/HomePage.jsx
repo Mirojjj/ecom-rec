@@ -21,7 +21,7 @@ const HomePage = () => {
       try {
         const endpoint = searchQuery.trim() ? "/search" : "/trendings";
         const params = searchQuery.trim()
-          ? { search_term: searchQuery, target_user_id: 4, top_n: 20 }
+          ? { search_term: searchQuery, target_user_id: 26287, top_n: 20 }
           : {};
         const response = await axios.get(`${API_URL}${endpoint}`, { params });
         setProducts(response.data);

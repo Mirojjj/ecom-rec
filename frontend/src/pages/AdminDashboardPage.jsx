@@ -3,8 +3,12 @@ import axios from "axios";
 import { useDisclosure } from "@chakra-ui/hooks";
 import EditProductModal from "../components/EditProductModal";
 import AddProductModal from "../components/AddproductModal";
-import { v4 as uuidv4 } from "uuid";
-import { getToken, searchProduct, sortProducts } from "../utils/helpers";
+import {
+  getToken,
+  searchProduct,
+  sortProducts,
+  generateFloatID,
+} from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboardPage = () => {
@@ -15,6 +19,7 @@ const AdminDashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const token = getToken();
+  const newId = generateFloatID();
 
   const navigate = useNavigate();
   const {
@@ -35,6 +40,7 @@ const AdminDashboardPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log(response.data);
       setProductsData(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -90,7 +96,7 @@ const AdminDashboardPage = () => {
         `${API_URL}`,
         {
           ...product,
-          ID: uuidv4(),
+          ID: newId,
           Rating: 0,
           ReviewCount: 0,
         },
@@ -186,6 +192,7 @@ const AdminDashboardPage = () => {
                   "Image",
                   "Description",
                   "Tags",
+                  "Price",
                   "Actions",
                 ].map((header) => (
                   <th
@@ -240,7 +247,7 @@ const AdminDashboardPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img
-                      src={product.ImageURL}
+                      src={product.ImageURL.match(/^([^|]+)/)?.[0]}
                       alt={product.Name}
                       className="w-16 h-16 object-cover rounded-md"
                     />
@@ -257,6 +264,9 @@ const AdminDashboardPage = () => {
                     {product.Tags && product.Tags.length > 12
                       ? `${product.Tags.slice(0, 12)}...`
                       : product.Tags}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.Price}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button

@@ -26,6 +26,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
     Tags: "",
     ImageURL: "",
     Description: "",
+    Price: "",
   });
 
   // Populate the form data when the modal opens
@@ -77,6 +78,18 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
                 placeholder="Product Name"
                 name="Name"
                 value={formData.Name}
+                onChange={handleChange}
+              />
+            </FormControl>
+
+            <FormControl mt={4} isRequired>
+              <FormLabel>Price</FormLabel>
+              <Input
+                type="number"
+                required
+                placeholder="Price"
+                name="Price"
+                value={formData.Price}
                 onChange={handleChange}
               />
             </FormControl>

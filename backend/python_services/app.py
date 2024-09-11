@@ -47,7 +47,7 @@ def getTrendingProducts():
         return JSONResponse(content={"error": "Data not available"}, status_code=500)
 
     try:
-        average_ratings = df.groupby(['Name', 'ReviewCount', 'Brand', 'ImageURL'])[
+        average_ratings = df.groupby(['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Price'])[
             'Rating'].mean().reset_index()
         average_ratings['WeightedScore'] = (
             average_ratings['Rating'] * 0.94) + (np.log1p(average_ratings['ReviewCount']) * 0.06)
@@ -93,7 +93,7 @@ def collaborative_filtering_recommendations(df, target_user_id, top_n):
 
     # Get the details of recommended items
     recommended_items_details = df[df['ID'].isin(recommended_items)][[
-        'Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating']]
+        'Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price']]
     return recommended_items_details.head(top_n)
 
 
@@ -132,7 +132,7 @@ def knn_content_based_recommendations(df, search_term, top_n):
 
     # Create a DataFrame with recommendations and distances
     recommended_items_details = df.iloc[indices.flatten(
-    )][['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating']]
+    )][['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price']]
     recommended_items_details['Distance'] = distances.flatten()
 
     return recommended_items_details.head(top_n)
