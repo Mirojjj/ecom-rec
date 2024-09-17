@@ -17,9 +17,10 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
+  console.log(product.ProdID);
   // State to manage the form data
   const [formData, setFormData] = useState({
-    ID: product.ID,
+    ProdID: product.ProdID,
     Name: "",
     Brand: "",
     Category: "",
@@ -33,7 +34,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
   useEffect(() => {
     if (product) {
       setFormData({
-        ID: product.ID,
+        ProdID: product.ProdID,
         Name: product.Name || "",
         Brand: product.Brand || "",
         Category: product.Category || "",

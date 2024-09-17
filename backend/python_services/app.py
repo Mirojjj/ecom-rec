@@ -23,7 +23,10 @@ app.add_middleware(
 try:
     df = pd.read_csv(
         "/Users/miroj/Desktop/final_year_project/models/cleaned_data.csv", encoding="utf-8")
-    print(df.shape)
+
+    collab_df = pd.read_csv(
+        "/Users/miroj/Desktop/final_year_project/models/collab_filter.csv", encoding="utf-8")
+
 except Exception as e:
     print(f"Error loading data: {e}")
     df = pd.DataFrame()  # Fallback to an empty DataFrame
@@ -64,7 +67,7 @@ def getTrendingProducts():
 def collaborative_filtering_recommendations(df, target_user_id, top_n):
     # Create the user-item matrix
     user_item_matrix = df.pivot_table(
-        index='ID', columns='ProdID', values='Rating', aggfunc='mean').fillna(0)
+        index='userID', columns='ProdID', values='Rating', aggfunc='mean').fillna(0)
 
     # Compute user similarity using k-NN
     knn_model = NearestNeighbors(
@@ -92,7 +95,7 @@ def collaborative_filtering_recommendations(df, target_user_id, top_n):
             similar_user_ratings[not_rated_by_target_user].index)
 
     # Get the details of recommended items
-    recommended_items_details = df[df['ID'].isin(recommended_items)][[
+    recommended_items_details = df[df['userID'].isin(recommended_items)][[
         'Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price']]
     return recommended_items_details.head(top_n)
 
@@ -151,11 +154,11 @@ def search(search_term: str, target_user_id: int, top_n: int = Query()):
 
         # Get collaborative filtering recommendations
         collaborative_filtering_rec = collaborative_filtering_recommendations(
-            df, target_user_id, top_n)
+            collab_df, target_user_id, top_n)
 
         # Combine and deduplicate recommendations
         combined_rec = pd.concat(
-            [content_based_rec, collaborative_filtering_rec]).drop_duplicates()
+            [content_based_rec, collaborative_filtering_rec]).drop_duplicates()  # collaborative_filtering_rec
 
         cleaned_data = clean_df(combined_rec)
         cleaned_data = cleaned_data.head(20)

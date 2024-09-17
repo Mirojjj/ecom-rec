@@ -1,6 +1,13 @@
 import React from "react";
 
-const TrendingProducts = ({ name, reviewCount, brand, imageUrl, ratings }) => {
+const TrendingProducts = ({
+  name,
+  reviewCount,
+  brand,
+  imageUrl,
+  ratings,
+  price,
+}) => {
   const firstImageUrl = imageUrl.match(/^([^|]+)/)?.[0] || "";
   return (
     <div className="flex flex-col h-full items-center bg-white p-4 rounded-lg gap-6 shadow-xl ">
@@ -16,6 +23,9 @@ const TrendingProducts = ({ name, reviewCount, brand, imageUrl, ratings }) => {
         </div>
         <div className="text-sm text-gray-600 mb-1 font-semibold tracking-tight">
           {brand}
+        </div>
+        <div className="text-xl text-orange-600 font-bold  mb-1 tracking-tight">
+          Rs. {price}
         </div>
         <div className="text-orange-400 font-bold  flex gap-1">
           <div className="flex">
@@ -39,7 +49,7 @@ const TrendingProducts = ({ name, reviewCount, brand, imageUrl, ratings }) => {
           </p>
         </div>
         {/* <div className="text-sm text-gray-600">{reviewCount} reviews</div> */}
-        <button className=" border border-black rounded-3xl py-1 px-3 tracking-tight mt-3 text-sm font-semibold hover:bg-blue-500 hover:text-white hover:border-none">
+        <button className=" border border-black rounded-3xl py-1 px-3 tracking-tight mt-3 text-sm font-semibold hover:bg-orange-500 hover:text-white hover:border-none">
           Add to Cart
         </button>
       </div>

@@ -40,8 +40,8 @@ function writeCSV(data) {
 // Read all records
 async function getProducts(req, res) {
   try {
-    const users = await readCSV();
-    res.status(200).json(users);
+    const products = await readCSV();
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ error: "Error reading CSV file" });
   }
@@ -49,15 +49,15 @@ async function getProducts(req, res) {
 
 // Create a new record
 async function addProduct(req, res) {
+  console.log("add prod");
   try {
-    const users = await readCSV();
-    const newUser = {
-      ProdID: users.length + 1,
-      ...req.body,
-    };
-    users.unshift(newUser);
-    await writeCSV(users);
-    res.status(200).json(newUser);
+    const products = await readCSV();
+    const newProduct = req.body;
+
+    products.unshift(newProduct);
+    console.log(newProduct);
+    await writeCSV(products);
+    res.status(200).json(newProduct);
   } catch (error) {
     res.status(500).json({ error: "Error writing to CSV file" });
   }
@@ -65,15 +65,20 @@ async function addProduct(req, res) {
 
 // Update a record by ID
 async function updateProduct(req, res) {
+  console.log(req.params.id);
   try {
-    const users = await readCSV();
-    const userIndex = users.findIndex((user) => user.ID === req.params.id);
-    if (userIndex === -1) {
+    const products = await readCSV();
+    const productIndex = products.findIndex(
+      (product) => product.ProdID === req.params.id
+    );
+    console.log(productIndex);
+    if (productIndex === -1) {
       return res.status(404).json({ error: "User not found" });
     }
-    users[userIndex] = { ...users[userIndex], ...req.body };
-    await writeCSV(users);
-    res.status(200).json(users[userIndex]);
+    products[productIndex] = { ...products[productIndex], ...req.body };
+    await writeCSV(products);
+    res.status(200).json(products[productIndex]);
+    console.log("edited");
   } catch (error) {
     res.status(500).json({ error: "Error updating CSV file" });
   }
@@ -84,13 +89,15 @@ async function deleteProduct(req, res) {
   console.log("delete triggered");
   console.log(req.params.id);
   try {
-    const users = await readCSV();
-    const filteredUsers = users.filter((user) => user.ID !== req.params.id);
-    if (users.length === filteredUsers.length) {
-      return res.status(404).json({ error: "User not found" });
+    const products = await readCSV();
+    const filteredProducts = products.filter(
+      (product) => product.ProdID !== req.params.id
+    );
+    if (products.length === filteredProducts.length) {
+      return res.status(404).json({ error: "Product not found" });
     }
-    await writeCSV(filteredUsers);
-    res.status(200).json({ message: "User deleted successfully" });
+    await writeCSV(filteredProducts);
+    res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Error deleting from CSV file" });
   }

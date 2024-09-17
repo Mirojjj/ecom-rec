@@ -6,7 +6,7 @@ import AddProductModal from "../components/AddproductModal";
 import {
   getToken,
   searchProduct,
-  sortProducts,
+  // sortProducts,
   generateFloatID,
 } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
@@ -53,6 +53,7 @@ const AdminDashboardPage = () => {
   };
 
   const handleDelete = async (productId) => {
+    console.log(productId);
     try {
       await axios.delete(`${API_URL}/${productId}`, {
         headers: {
@@ -72,12 +73,15 @@ const AdminDashboardPage = () => {
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
+    console.log(product);
     onOpen();
   };
 
   const handleSave = async (updatedProduct) => {
+    console.log(updatedProduct);
+    console.log(updatedProduct.ProdID);
     try {
-      await axios.put(`${API_URL}/${updatedProduct.ID}`, updatedProduct, {
+      await axios.put(`${API_URL}/${updatedProduct.ProdID}`, updatedProduct, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -91,14 +95,13 @@ const AdminDashboardPage = () => {
   };
 
   const handleAddSave = async (product) => {
+    console.log(product);
     try {
       await axios.post(
         `${API_URL}`,
         {
           ...product,
-          ID: newId,
-          Rating: 0,
-          ReviewCount: 0,
+          ProdID: newId,
         },
         {
           headers: {
@@ -121,7 +124,7 @@ const AdminDashboardPage = () => {
 
   // Filter and sort products
   let filteredProducts = searchProduct(productsData, searchQuery);
-  filteredProducts = sortProducts(filteredProducts, sortOption);
+  // filteredProducts = sortProducts(filteredProducts, sortOption);
 
   // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -150,7 +153,7 @@ const AdminDashboardPage = () => {
             type="text"
             placeholder="Search By name or product ID"
           />
-          <div className="filter mb-4 sm:mb-0">
+          {/* <div className="filter mb-4 sm:mb-0">
             <select
               className="p-2 rounded-lg border"
               value={sortOption}
@@ -160,7 +163,7 @@ const AdminDashboardPage = () => {
               <option value="ReviewCount">Review Count</option>
               <option value="Rating">Rating</option>
             </select>
-          </div>
+          </div> */}
           <div className=" flex gap-2">
             <button
               className="p-2 bg-blue-600 rounded-lg text-white"
@@ -182,10 +185,7 @@ const AdminDashboardPage = () => {
               <tr>
                 {[
                   "SN",
-                  "ID",
                   "ProdID",
-                  "Rating",
-                  "Review Count",
                   "Category",
                   "Brand",
                   "Name",
@@ -210,22 +210,22 @@ const AdminDashboardPage = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {indexOfFirstProduct + index + 1}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.ID && product.ID.length > 4
                       ? `${product.ID.slice(0, 4)}...`
                       : product.ID}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.ProdID && product.ProdID.length > 4
                       ? `${product.ProdID.slice(0, 4)}...`
                       : product.ProdID}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.Rating}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  </td> */}
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.ReviewCount}
-                  </td>
+                  </td> */}
                   <td
                     className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate w-32"
                     title={product.Category}
@@ -276,7 +276,7 @@ const AdminDashboardPage = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(product.ID)}
+                      onClick={() => handleDelete(product.ProdID)}
                       className="text-red-600 hover:text-red-900"
                     >
                       Delete

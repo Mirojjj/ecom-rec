@@ -26,13 +26,13 @@ const Navbar = ({ onSearch }) => {
 
       <input
         type="text"
-        className="searchbar px-4 py-2 rounded-2xl w-96 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="searchbar px-4 py-2 rounded-2xl w-96 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-none"
         placeholder="Search for Products..."
         onKeyDown={handleSearch}
       />
 
       <div className="flex items-center space-x-6 font-medium">
-        <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-500">
+        <div className="flex items-center space-x-2 cursor-pointer hover:text-orange-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -51,7 +51,7 @@ const Navbar = ({ onSearch }) => {
           <span>Account</span>
         </div>
 
-        <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-500">
+        <div className="flex items-center space-x-2 cursor-pointer hover:text-orange-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

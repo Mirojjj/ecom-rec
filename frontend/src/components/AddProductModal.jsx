@@ -19,7 +19,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
 
   // State to manage the form data
   const [formData, setFormData] = useState({
-    ID: "",
+    ProdID: "",
     Name: "",
     Brand: "",
     Category: "",
@@ -54,6 +54,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
 
   // Handle save button click
   const handleSubmit = () => {
+    console.log(formData);
     onSave(formData); // Call the onSave function passed from the parent component
     onClose(); // Close the modal
   };
