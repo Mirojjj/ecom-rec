@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import DrawerModel from "../components/Drawer";
 import { useDisclosure } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ onSearch }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,7 +46,10 @@ const Navbar = ({ onSearch }) => {
       />
 
       <div className="flex items-center space-x-6 font-medium">
-        <div className="flex items-center space-x-2 cursor-pointer hover:text-orange-600">
+        <Link
+          to={"/login"}
+          className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -62,7 +66,7 @@ const Navbar = ({ onSearch }) => {
           </svg>
 
           <span>Account</span>
-        </div>
+        </Link>
 
         <div
           ref={btnRef}
