@@ -1,14 +1,21 @@
 import React from "react";
+import { useCartStore } from "../store/useCartStore";
 
-const TrendingProducts = ({
-  name,
-  reviewCount,
-  brand,
-  imageUrl,
-  ratings,
-  price,
-}) => {
-  const firstImageUrl = imageUrl.match(/^([^|]+)/)?.[0] || "";
+const TrendingProducts = ({ product }) => {
+  // name={product.Name}
+  // reviewCount={product.ReviewCount}
+  // brand={product.Brand}
+  // imageUrl={product.ImageURL}
+  // ratings={product.Rating}
+  // price={product.Price}
+
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddItemToCart = () => {
+    addItem(product);
+  };
+
+  const firstImageUrl = product.ImageURL.match(/^([^|]+)/)?.[0] || "";
   return (
     <div className="flex flex-col h-full items-center bg-white p-4 rounded-lg gap-6 shadow-xl ">
       <img
@@ -19,13 +26,13 @@ const TrendingProducts = ({
 
       <div className="flex flex-col items-start gap-1  w-full">
         <div className="text-lg font-semibold mb-1 tracking-tight line-clamp-2 text-ellipsis">
-          {name}
+          {product.Name}
         </div>
         <div className="text-sm text-gray-600 mb-1 font-semibold tracking-tight">
-          {brand}
+          {product.Brand}
         </div>
         <div className="text-xl text-orange-600 font-bold  mb-1 tracking-tight">
-          Rs. {price}
+          Rs. {product.Price}
         </div>
         <div className="text-orange-400 font-bold  flex gap-1">
           <div className="flex">
@@ -41,15 +48,18 @@ const TrendingProducts = ({
                 clip-rule="evenodd"
               />
             </svg>
-            {ratings}
+            {product.Rating}
           </div>
 
           <p className="text-black font-normal tracking-tight">
-            ({reviewCount})
+            ({product.ReviewCount})
           </p>
         </div>
         {/* <div className="text-sm text-gray-600">{reviewCount} reviews</div> */}
-        <button className=" border border-black rounded-3xl py-1 px-3 tracking-tight mt-3 text-sm font-semibold hover:bg-orange-500 hover:text-white hover:border-none">
+        <button
+          onClick={handleAddItemToCart}
+          className=" border border-black rounded-3xl py-1 px-3 tracking-tight mt-3 text-sm font-semibold hover:bg-orange-500 hover:text-white hover:border-none"
+        >
           Add to Cart
         </button>
       </div>

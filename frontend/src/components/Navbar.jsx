@@ -1,6 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
+import DrawerModel from "../components/Drawer";
+import { useDisclosure } from "@chakra-ui/react";
 
 const Navbar = ({ onSearch }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [isDrawer, setIsDrawer] = useState(false);
+
+  const btnRef = React.useRef();
+
+  const handleCartDrawer = () => {
+    setIsDrawer(true);
+    onOpen();
+  };
+
   const handleSearch = (e) => {
     if (e.key === "Enter") {
       console.log(e.target.value);
@@ -51,7 +64,11 @@ const Navbar = ({ onSearch }) => {
           <span>Account</span>
         </div>
 
-        <div className="flex items-center space-x-2 cursor-pointer hover:text-orange-600">
+        <div
+          ref={btnRef}
+          onClick={handleCartDrawer}
+          className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -70,6 +87,9 @@ const Navbar = ({ onSearch }) => {
           <span>Cart</span>
         </div>
       </div>
+      {isDrawer && (
+        <DrawerModel isOpen={isOpen} onClose={onClose} btnRef={btnRef} />
+      )}
     </div>
   );
 };

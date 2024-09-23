@@ -7,6 +7,8 @@ import { Box } from "@chakra-ui/react";
 import ImageSlider from "../components/ImageSlider";
 import { SlideData } from "../utils/slidedata";
 import Footer from "../components/Footer";
+// import DrawerModel from "../components/Drawer";
+// import { useDisclosure } from "@chakra-ui/react";
 
 const HomePage = () => {
   const API_URL = "http://127.0.0.1:8000";
@@ -25,6 +27,7 @@ const HomePage = () => {
           : {};
         const response = await axios.get(`${API_URL}${endpoint}`, { params });
         setProducts(response.data);
+        // console.log(products.map((pro) => pro.ProdID));
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -59,14 +62,7 @@ const HomePage = () => {
             {products.length > 0 ? (
               products.map((product, index) => (
                 <div key={index}>
-                  <TrendingProducts
-                    name={product.Name}
-                    reviewCount={product.ReviewCount}
-                    brand={product.Brand}
-                    imageUrl={product.ImageURL}
-                    ratings={product.Rating}
-                    price={product.Price}
-                  />
+                  <TrendingProducts product={product} />
                 </div>
               ))
             ) : (
