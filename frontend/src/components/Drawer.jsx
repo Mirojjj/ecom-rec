@@ -121,6 +121,7 @@ const DrawerModel = ({ isOpen, onClose, btnRef }) => {
               <p>
                 or
                 <button
+                  onClick={onClose}
                   type="button"
                   className="ml-1 font-medium text-orange-600 hover:text-orange-500 transition-colors duration-300"
                 >
