@@ -8,72 +8,74 @@ import {
   InputRightElement,
   Button,
 } from "@chakra-ui/react";
+import axios from "axios";
 
-// import { ChatState } from "../../context/ChatProvider";
+import { useToast } from "@chakra-ui/react";
 
 // import axios from "axios";
-// import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 const Login = () => {
-  //   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
-  //   const [show, setShow] = useState("");
-  //   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, serConfirmPassword] = useState("");
 
-  //   const toast = useToast();
+  const [show, setShow] = useState("");
+  const API = "http://localhost:3000/users";
+  const [loading, setLoading] = useState(false);
+
+  const toast = useToast();
 
   //   const history = useHistory();
   //   const { setUser } = ChatState();
 
-  //   const handleClick = () => {
-  //     setShow(!show);
-  //   };
+  const handleClick = () => {
+    setShow(!show);
+  };
 
-  //   const handleSubmit = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const config = {
-  //         Headers: {
-  //           "Content-type": "application/json",
-  //         },
-  //       };
-  //       const { data } = await axios.post(
-  //         "/api/user/login",
-  //         {
-  //           email,
-  //           password,
-  //         },
-  //         config
-  //       );
+  const handleSubmit = async () => {
+    setLoading(true);
+    console.log(email);
+    console.log(password);
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
 
-  //       setUser(data);
-  //       localStorage.setItem("user-credentails", JSON.stringify(data));
+      const response = await axios.post(
+        "http://localhost:3000/users/login",
+        {
+          email,
+          password,
+        },
+        config
+      );
 
-  //       setLoading(false);
+      console.log(response.data);
+      localStorage.setItem("user-credentails", JSON.stringify(response.data));
 
-  //       history.push("/chats");
+      toast({
+        title: "Login successful!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
 
-  //       toast({
-  //         title: "Login successful!",
-  //         status: "success",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "bottom",
-  //       });
-
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //       toast({
-  //         title: error.response.data.message,
-  //         status: "warning",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "bottom",
-  //       });
-  //       setLoading(false);
-  //     }
-  //   };
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: error.response.data,
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
 
   return (
     <VStack spacing={"12px"}>
@@ -81,8 +83,8 @@ const Login = () => {
         <FormLabel>Email</FormLabel>
         <Input
           placeholder="Enter Your Name"
-          //   value={email}
-          //   onChange={(e) => setEmail(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </FormControl>
 
@@ -90,41 +92,40 @@ const Login = () => {
         <FormLabel>Password</FormLabel>
         <InputGroup>
           <Input
-            type="password"
-            // type={show ? "text" : "password"}
+            type={show ? "text" : "password"}
             placeholder="Enter Your Password"
-            // value={password}
-            // onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          {/* <InputRightElement w={"4.5rem"}>
+          <InputRightElement w={"4.5rem"}>
             <Button h={"1.75rem"} size={"sm"} onClick={handleClick}>
               {show ? "Hide" : "Show"}
             </Button>
-          </InputRightElement> */}
+          </InputRightElement>
         </InputGroup>
       </FormControl>
 
       <Button
-        // isLoading={loading}
+        isLoading={loading}
         colorScheme="blue"
         width={"100%"}
         style={{ marginTop: 15 }}
-        // onClick={handleSubmit}
+        onClick={handleSubmit}
       >
         Login
       </Button>
 
-      {/* <Button
+      <Button
         colorScheme="red"
         width={"100%"}
         style={{ marginTop: 15 }}
         onClick={() => {
-          setEmail("test@example.com");
+          setEmail("abc@gmail.com");
           setPassword("123456");
         }}
       >
         Get Guest User Credentials
-      </Button> */}
+      </Button>
     </VStack>
   );
 };

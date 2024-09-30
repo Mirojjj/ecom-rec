@@ -9,23 +9,30 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-// import axios from "axios";
+
+import axios from "axios";
 // import { useHistory } from "react-router-dom";
 
 const Signup = () => {
-  //   const [name, setName] = useState("");
-  //   const [email, setEmail] = useState("");
-  //   const [password, setPassword] = useState("");
-  //   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   //   const [pic, setPic] = useState("");
-  //   const [show, setShow] = useState(false);
-  //   const [loading, setLoading] = useState(false);
-  //   const toast = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
   //   const history = useHistory();
 
-  //   const handleClick = () => {
-  //     setShow(!show);
-  //   };
+  const handlePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   //   const postDetails = (pics) => {
   //     setLoading(true);
@@ -69,60 +76,67 @@ const Signup = () => {
   //     }
   //   };
 
-  //   const handleSubmit = async () => {
-  //     setLoading(true);
+  const handleSubmit = async () => {
+    setLoading(true);
 
-  //     try {
-  //       const config = {
-  //         headers: {
-  //           "Content-type": "application/json",
-  //         },
-  //       };
-  //       const { data } = await axios.post(
-  //         "/api/user",
-  //         {
-  //           name,
-  //           email,
-  //           password,
-  //           confirmPassword,
-  //           pic,
-  //         },
-  //         config
-  //       );
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const { data } = await axios.post(
+        "/api/user",
+        {
+          name,
+          email,
+          password,
+          confirmPassword,
+          pic,
+        },
+        config
+      );
 
-  //       toast({
-  //         title: "User Registered Successfully",
-  //         status: "success",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "bottom",
-  //       });
+      toast({
+        title: "User Registered Successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
 
-  //       localStorage.setItem("user-credentails", JSON.stringify(data));
+      localStorage.setItem("user-credentails", JSON.stringify(data));
 
-  //       setLoading(false);
+      setLoading(false);
 
-  //       history.push("/chats");
-  //     } catch (error) {
-  //       console.log(error);
-  //       toast({
-  //         title: error.response.data.message,
-  //         status: "warning",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "bottom",
-  //       });
-  //       setLoading(false);
-  //     }
-  //   };
+      history.push("/chats");
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: error.response.data.message,
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+  };
 
   return (
     <VStack spacing={"12px"} color={"black"}>
+      <FormControl id="Username" isRequired>
+        <FormLabel>Username</FormLabel>
+        <Input
+          placeholder="Enter Your Username"
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </FormControl>
       <FormControl id="email" isRequired>
         <FormLabel>Email</FormLabel>
         <Input
           placeholder="Enter Your Email"
-          //   onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
       </FormControl>
 
@@ -130,16 +144,15 @@ const Signup = () => {
         <FormLabel>Password</FormLabel>
         <InputGroup>
           <Input
-            type="password"
-            // type={show ? "text" : "password"}
+            type={showPassword ? "text" : "password"}
             placeholder="Enter Your Password"
-            // onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          {/* <InputRightElement w={"4.5rem"}>
-            <Button h={"1.75rem"} size={"sm"} onClick={handleClick}>
-              {show ? "Hide" : "Show"}
+          <InputRightElement w={"4.5rem"}>
+            <Button h={"1.75rem"} size={"sm"} onClick={handlePassword}>
+              {showPassword ? "Hide" : "Show"}
             </Button>
-          </InputRightElement> */}
+          </InputRightElement>
         </InputGroup>
       </FormControl>
 
@@ -147,16 +160,15 @@ const Signup = () => {
         <FormLabel>Confirm Password</FormLabel>
         <InputGroup>
           <Input
-            type="password"
-            // type={show ? "text" : "password"}
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="Enter Your Password"
-            // onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {/* <InputRightElement w={"4.5rem"}>
-            <Button h={"1.75rem"} size={"sm"} onClick={handleClick}>
-              {show ? "Hide" : "Show"}
+          <InputRightElement w={"4.5rem"}>
+            <Button h={"1.75rem"} size={"sm"} onClick={handleConfirmPassword}>
+              {showConfirmPassword ? "Hide" : "Show"}
             </Button>
-          </InputRightElement> */}
+          </InputRightElement>
         </InputGroup>
       </FormControl>
 
@@ -164,8 +176,8 @@ const Signup = () => {
         colorScheme="blue"
         width={"100%"}
         style={{ marginTop: 15 }}
-        // onClick={handleSubmit}
-        // isLoading={loading}
+        onClick={handleSubmit}
+        isLoading={loading}
       >
         Sign Up
       </Button>

@@ -3,10 +3,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 async function userSignup(req, res) {
-  const { email, password, confirmPassword } = req.body;
+  const { username, email, password, confirmPassword } = req.body;
 
   try {
-    if (!email || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       res.status(400);
       throw new Error("Please Enter all the Fields!");
     }
@@ -16,13 +16,21 @@ async function userSignup(req, res) {
       throw new Error("Passwords Do not match!");
     }
 
-    const userAlreadyExists = await User.findOne({ email });
+    const userAlreadyExists = await User.findOne({ username });
     if (userAlreadyExists) {
       res.status(400);
-      throw new Error("Email is already registered");
+      throw new Error("Username already registered");
+    }
+
+    const emailAlreadyExists = await User.findOne({ email });
+
+    if (emailAlreadyExists) {
+      res.status(400);
+      throw new Error("Email already registered");
     }
 
     const user = await User.create({
+      username,
       email,
       password,
     });
@@ -30,6 +38,7 @@ async function userSignup(req, res) {
     if (user) {
       res.status(200).json({
         _id: user._id,
+        username: user.username,
         email: user.email,
       });
     }
@@ -41,11 +50,11 @@ async function userSignup(req, res) {
 
 async function userLogin(req, res) {
   const { email, password } = req.body;
-
+  console.log(email, password);
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send("User not found");
+      return res.status(400).send("Invalid Credentials");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
