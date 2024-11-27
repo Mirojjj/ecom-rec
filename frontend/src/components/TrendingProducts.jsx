@@ -15,15 +15,34 @@ const TrendingProducts = ({ product }) => {
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddItemToCart = () => {
-    isLoggedIn
-      ? addItem(product)
-      : toast({
-          title: "Please Login First",
-          status: "warning",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
+    if (isLoggedIn) {
+      addItem(product);
+      toast({
+        title: "Item added to the cart",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } else {
+      toast({
+        title: "Please Login First",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+
+    // isLoggedIn
+    //   ? addItem(product)
+    //   : toast({
+    //       title: "Please Login First",
+    //       status: "warning",
+    //       duration: 5000,
+    //       isClosable: true,
+    //       position: "bottom",
+    //     });
   };
 
   const firstImageUrl = product.ImageURL.match(/^([^|]+)/)?.[0] || "";
