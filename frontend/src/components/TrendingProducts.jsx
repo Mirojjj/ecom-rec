@@ -1,18 +1,29 @@
 import React from "react";
 import { useCartStore } from "../store/useCartStore";
+import useAuthStore from "../store/useAuthStore";
+import { useToast } from "@chakra-ui/react";
 
 const TrendingProducts = ({ product }) => {
+  const toast = useToast();
   // name={product.Name}
   // reviewCount={product.ReviewCount}
   // brand={product.Brand}
   // imageUrl={product.ImageURL}
   // ratings={product.Rating}
   // price={product.Price}
-
+  const { isLoggedIn } = useAuthStore();
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddItemToCart = () => {
-    addItem(product);
+    isLoggedIn
+      ? addItem(product)
+      : toast({
+          title: "Please Login First",
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
   };
 
   const firstImageUrl = product.ImageURL.match(/^([^|]+)/)?.[0] || "";

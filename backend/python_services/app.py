@@ -22,7 +22,7 @@ app.add_middleware(
 # Load data
 try:
     df = pd.read_csv(
-        "/Users/miroj/Desktop/final_year_project/models/cleaned_data.csv", encoding="utf-8")
+        "/Users/miroj/Desktop/final_year_project/models/cleaned_datae.csv", encoding="utf-8")
 
     collab_df = pd.read_csv(
         "/Users/miroj/Desktop/final_year_project/models/collab_filter.csv", encoding="utf-8")
