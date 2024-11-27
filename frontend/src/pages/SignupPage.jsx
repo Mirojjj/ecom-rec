@@ -2,61 +2,76 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-import useAuthStore from "../store/useAuthStore";
 import axios from "axios";
 
-const LoginPage = () => {
+const SignupPage = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const toast = useToast();
   const navigate = useNavigate();
-  const { login } = useAuthStore();
 
-  // Toggle password visibility
-  const handlePassword = () => {
-    setShowPassword(!showPassword);
-  };
+  const handlePassword = () => setShowPassword(!showPassword);
+  const handleConfirmPassword = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
-  // Handle login submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (!username || !email || !password || !confirmPassword) {
+      toast({
+        title: "All fields are required!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords do not match!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       };
+
       const { data } = await axios.post(
-        "http://localhost:3000/users/login", // Adjust to match your backend route
-        {
-          email,
-          password,
-        },
+        "http://localhost:3000/users/signup",
+        { username, email, password, confirmPassword },
         config
       );
 
-      login(email);
-
       toast({
-        title: "Login Successful",
+        title: "User Registered Successfully",
         status: "success",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
 
-      localStorage.setItem("user-credentials", JSON.stringify(data));
       setLoading(false);
-
-      navigate("/"); // Redirect to the chats page or home
+      navigate("/login"); // Redirect to login page
     } catch (error) {
-      console.log(error);
       toast({
-        title: error.response?.data?.message || "Invalid Credentials",
+        title: error.response?.data?.message || "An error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -92,6 +107,14 @@ const LoginPage = () => {
           className="w-full max-w-md flex flex-col gap-6"
         >
           <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg py-3 px-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400"
+            placeholder="Username"
+          />
+
+          <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -121,6 +144,28 @@ const LoginPage = () => {
             )}
           </div>
 
+          {/* Confirm Password field */}
+          <div className="flex items-center border border-gray-300 rounded-lg bg-gray-50 pr-4 focus-within:ring-2 focus-within:ring-orange-400">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full py-3 px-4 bg-transparent focus:outline-none"
+              placeholder="Confirm Password"
+            />
+            {showConfirmPassword ? (
+              <EyeInvisibleOutlined
+                className="cursor-pointer text-gray-500"
+                onClick={handleConfirmPassword}
+              />
+            ) : (
+              <EyeOutlined
+                className="cursor-pointer text-gray-500"
+                onClick={handleConfirmPassword}
+              />
+            )}
+          </div>
+
           <button
             type="submit"
             className={`w-full bg-orange-400 text-white font-bold py-3 rounded-lg ${
@@ -128,14 +173,14 @@ const LoginPage = () => {
             }`}
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
         <p className="mt-6 text-gray-600">
-          Dont't have an account?{" "}
-          <Link to="/signup" className="text-orange-500 font-semibold">
-            Signup
+          Already have an account?{" "}
+          <Link to="/login" className="text-orange-500 font-semibold">
+            Login
           </Link>
         </p>
       </div>
@@ -143,4 +188,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DrawerModel from "../components/Drawer";
 import { useDisclosure } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import useAuthStore from "../store/useAuthStore";
 
 const Navbar = ({ onSearch }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -9,6 +10,9 @@ const Navbar = ({ onSearch }) => {
   const [isDrawer, setIsDrawer] = useState(false);
 
   const btnRef = React.useRef();
+
+  const { isLoggedIn } = useAuthStore();
+  const { logout } = useAuthStore();
 
   const handleCartDrawer = () => {
     setIsDrawer(true);
@@ -46,7 +50,31 @@ const Navbar = ({ onSearch }) => {
       />
 
       <div className="flex items-center space-x-6 font-medium">
-        <Link
+        {isLoggedIn ? (
+          <div
+            onClick={logout}
+            className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
+          >
+            Logout
+          </div>
+        ) : (
+          <div className=" flex gap-3">
+            <Link
+              to={"/login"}
+              className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
+            >
+              Login
+            </Link>
+            <Link
+              to={"/signup"}
+              className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
+            >
+              Sign Up
+            </Link>
+          </div>
+        )}
+
+        {/* <Link
           to={"/login"}
           className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
         >
@@ -66,7 +94,7 @@ const Navbar = ({ onSearch }) => {
           </svg>
 
           <span>Account</span>
-        </Link>
+        </Link> */}
 
         <div
           ref={btnRef}

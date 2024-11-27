@@ -69,7 +69,7 @@ const AddProductModal = ({ isOpen, onClose, onSave }) => {
       <ModalOverlay />
       <form onSubmit={handleSubmit}>
         <ModalContent>
-          <ModalHeader className="text-center">Edit Product</ModalHeader>
+          <ModalHeader className="text-center">Add Product</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl isRequired>

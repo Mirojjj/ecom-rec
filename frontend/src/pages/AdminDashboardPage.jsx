@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useDisclosure } from "@chakra-ui/hooks";
 import EditProductModal from "../components/EditProductModal";
-import AddProductModal from "../components/AddproductModal";
+import AddProductModal from "../components/AddProductModal";
 import {
   getToken,
   searchProduct,
