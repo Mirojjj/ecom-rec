@@ -26,6 +26,11 @@ const Navbar = ({ onSearch }) => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem("user-credentials");
+  };
+
   return (
     <div className="py-5 flex justify-between items-center w-full">
       <div
@@ -52,7 +57,7 @@ const Navbar = ({ onSearch }) => {
       <div className="flex items-center space-x-6 font-medium">
         {isLoggedIn ? (
           <div
-            onClick={logout}
+            onClick={handleLogout}
             className="flex items-center space-x-2 cursor-pointer hover:text-orange-600"
           >
             Logout
