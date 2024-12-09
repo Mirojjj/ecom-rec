@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/product-details/:id" element={<ProductDetails />} />
       </Routes>
     </Router>
   );

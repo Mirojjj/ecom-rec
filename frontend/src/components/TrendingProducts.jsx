@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useCartStore } from "../store/useCartStore";
 import useAuthStore from "../store/useAuthStore";
 import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 const TrendingProducts = ({ product }) => {
   const toast = useToast();
+  const navigate = useNavigate();
   // name={product.Name}
   // reviewCount={product.ReviewCount}
   // brand={product.Brand}
@@ -14,7 +16,12 @@ const TrendingProducts = ({ product }) => {
   const { isLoggedIn } = useAuthStore();
   const addItem = useCartStore((state) => state.addItem);
 
-  const handleAddItemToCart = () => {
+  useEffect(() => {
+    console.log(product);
+  }, []);
+
+  const handleAddItemToCart = (event) => {
+    event.stopPropagation();
     if (isLoggedIn) {
       addItem(product);
       toast({
@@ -47,7 +54,12 @@ const TrendingProducts = ({ product }) => {
 
   const firstImageUrl = product.ImageURL.match(/^([^|]+)/)?.[0] || "";
   return (
-    <div className="flex flex-col h-full items-center bg-white p-4 rounded-lg gap-6 shadow-xl ">
+    <div
+      onClick={() => {
+        navigate(`/product-details/${product.ProdID}`);
+      }}
+      className="flex flex-col h-full items-center bg-white p-4 rounded-lg gap-6 shadow-xl "
+    >
       <img
         src={firstImageUrl}
         alt="Product Image"

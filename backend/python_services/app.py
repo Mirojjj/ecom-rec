@@ -50,7 +50,7 @@ def getTrendingProducts():
         return JSONResponse(content={"error": "Data not available"}, status_code=500)
 
     try:
-        average_ratings = df.groupby(['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Price', 'ProdID'])[
+        average_ratings = collab_df.groupby(['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Price', 'ProdID', 'Category', 'Description', "Tags", "CProdId"])[
             'Rating'].mean().reset_index()
         average_ratings['WeightedScore'] = (
             average_ratings['Rating'] * 0.94) + (np.log1p(average_ratings['ReviewCount']) * 0.06)
@@ -64,40 +64,43 @@ def getTrendingProducts():
         return JSONResponse(content={"error": "Internal Server Error"}, status_code=500)
 
 
-def collaborative_filtering_recommendations(df, target_user_id, top_n):
+def collaborative_filtering_recommendations(df, target_user_id, top_n, k=5):
     # Create the user-item matrix
     user_item_matrix = df.pivot_table(
-        index='userID', columns='ProdID', values='Rating', aggfunc='mean').fillna(0)
+        index='userID', columns='CProdId', values='Rating', aggfunc='mean').fillna(0)
 
     # Check if target user exists
     if target_user_id not in user_item_matrix.index:
-        raise ValueError(
-            f"Target user {target_user_id} not found in the matrix.")
+        print(f"Target user {target_user_id} not found in the matrix.")
+        return pd.DataFrame()  # Return an empty DataFrame if the user is not found
 
-    # Compute user similarity
-    user_similarity = cosine_similarity(user_item_matrix)
-    user_similarity_df = pd.DataFrame(
-        user_similarity, index=user_item_matrix.index, columns=user_item_matrix.index)
+    # Fit the KNN model
+    # Include the user itself
+    knn = NearestNeighbors(metric='cosine', algorithm='brute', n_neighbors=k+1)
+    knn.fit(user_item_matrix)
 
-    # Get the target user's similarity scores
-    similar_users = user_similarity_df[target_user_id].sort_values(
-        ascending=False)
+    # Get the target user's index
+    target_user_index = user_item_matrix.index.get_loc(target_user_id)
 
-    # Weighted scoring for recommendations
+    # Find the nearest neighbors
+    distances, indices = knn.kneighbors(
+        user_item_matrix.iloc[target_user_index].values.reshape(1, -1), n_neighbors=k+1)
+
+    # Get the neighbor user IDs (excluding the target user itself)
+    # Skip the first neighbor, which is the user itself
+    neighbor_indices = indices.flatten()[1:]
+    neighbor_distances = distances.flatten()[1:]  # Skip the distance to itself
+    neighbor_user_ids = user_item_matrix.index[neighbor_indices]
+
+    # Aggregate ratings from neighbors
     item_scores = {}
-    for similar_user_id, similarity_score in similar_users.items():  # Use `.items()` instead of `.iteritems()`
-        if similar_user_id == target_user_id:
-            continue  # Skip the target user itself
-
-        similar_user_ratings = user_item_matrix.loc[similar_user_id]
-        not_rated_by_target_user = (similar_user_ratings > 0) & (
-            user_item_matrix.loc[target_user_id] == 0)
-
-        for prod_id in similar_user_ratings[not_rated_by_target_user].index:
+    for neighbor_id, distance in zip(neighbor_user_ids, neighbor_distances):
+        neighbor_ratings = user_item_matrix.loc[neighbor_id]
+        for prod_id, rating in neighbor_ratings[neighbor_ratings > 0].items():
             if prod_id not in item_scores:
                 item_scores[prod_id] = 0
-            item_scores[prod_id] += similar_user_ratings[prod_id] * \
-                similarity_score
+            # Weighted by similarity (1 + distance to avoid division by zero)
+            item_scores[prod_id] += rating / (1 + distance)
 
     # Sort and get top N items
     sorted_item_scores = sorted(
@@ -105,7 +108,7 @@ def collaborative_filtering_recommendations(df, target_user_id, top_n):
     top_items = [prod_id for prod_id, score in sorted_item_scores[:top_n]]
 
     # Retrieve item details
-    recommended_items_details = df[df['ProdID'].isin(top_items)].drop_duplicates(subset=['ProdID'])[
+    recommended_items_details = df[df['CProdId'].isin(top_items)].drop_duplicates(subset=['CProdId'])[
         ['Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price', 'ProdID']]
 
     return recommended_items_details.head(top_n)
@@ -120,22 +123,30 @@ def content_based_recommendations(df, user_id, search_term, top_n):
     search_term_normalized = search_term.lower().strip()
     print(f"Normalized search term: '{search_term_normalized}'")
 
-    # Perform fuzzy matching to find the closest item
-    matched_item = process.extractOne(
-        search_term_normalized, df['Name_normalized'], scorer=fuzz.partial_ratio)
-    print(f"Fuzzy match result: {matched_item}")
+    # Check for an exact match first
+    exact_match = df[df['Name_normalized'] == search_term_normalized]
+    if not exact_match.empty:
+        item_index = exact_match.index[0]
+        print(
+            f"Exact match found for '{search_term}': {df.loc[item_index, 'Name']}")
+    else:
+        # Perform fuzzy matching if no exact match is found
+        matched_item = process.extractOne(
+            search_term_normalized, df['Name_normalized'], scorer=fuzz.partial_ratio)
+        print(f"Fuzzy match result: {matched_item}")
 
-    # Ensure the matched item meets a threshold
-    if matched_item is None or matched_item[1] < 30:
-        print(f"No good match found for '{search_term}'.")
-        return pd.DataFrame()
+        # Ensure the matched item meets a threshold
+        if matched_item is None or matched_item[1] < 30:
+            print(f"No good match found for '{search_term}'.")
+            return pd.DataFrame()
 
-    best_match = matched_item[0]
-    item_index = df[df['Name_normalized'] == best_match].index
-    if item_index.empty:
-        print(f"Index not found for '{best_match}'")
-        return pd.DataFrame()
-    item_index = item_index[0]
+        best_match = matched_item[0]
+        print("best match: " + best_match)
+        item_index = df[df['Name_normalized'] == best_match].index
+        if item_index.empty:
+            print(f"Index not found for '{best_match}'")
+            return pd.DataFrame()
+        item_index = item_index[0]
 
     # Combine content fields for TF-IDF vectorization
     df['Combined'] = df['Tags'].fillna('') + " " + df['Description'].fillna('')
@@ -148,28 +159,43 @@ def content_based_recommendations(df, user_id, search_term, top_n):
         tfidf_matrix_content[item_index], tfidf_matrix_content).flatten()
 
     # Get the top N most similar items
-    similar_indices = cosine_similarities.argsort(
-    )[::-1][1:top_n + 1]  # Exclude the target item itself
+    similar_indices = cosine_similarities.argsort()[::-1][:top_n]
     similar_scores = cosine_similarities[similar_indices]
 
     # Retrieve recommended items
     recommended_items_details = df.iloc[similar_indices][[
-        'Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price', 'ProdID']]
+        'Name', 'ReviewCount', 'Brand', 'ImageURL', 'Rating', 'Price', 'ProdID', 'CProdId']]
     recommended_items_details['Similarity'] = similar_scores
 
-    # Incorporate user preferences (e.g., based on past ratings)
-    # Example: Assume you have a `user_ratings` dataframe containing user-item ratings
-    user_ratings = df[df['userID'] == user_id][['ProdID', 'Rating']]
+    # Check if user_id exists in the dataframe
+    if user_id in df['userID'].values:
+        print(
+            f"User ID {user_id} found in the dataset. Incorporating user ratings.")
 
-    # Add user ratings to the recommendations if available
-    recommended_items_details['User_Rating'] = recommended_items_details['ProdID'].apply(
-        lambda x: user_ratings[user_ratings['ProdID'] == x]['Rating'].max()
-        if not user_ratings[user_ratings['ProdID'] == x].empty else 0
-    )
+        # Assume you have a `user_ratings` dataframe containing user-item ratings
+        user_ratings = df[df['userID'] == user_id][['CProdId', 'Rating']]
 
-    # Sort by user rating and similarity
-    recommended_items_details = recommended_items_details.sort_values(
-        by=['User_Rating', 'Similarity'], ascending=[False, False])
+        # Add user ratings to the recommendations
+        recommended_items_details['User_Rating'] = recommended_items_details['CProdId'].apply(
+            lambda x: user_ratings[user_ratings['CProdId']
+                                   == x]['Rating'].max()
+            if not user_ratings[user_ratings['CProdId'] == x].empty else 0
+        )
+
+        # Sort by user rating and similarity
+        recommended_items_details = recommended_items_details.sort_values(
+            by=['Similarity', 'User_Rating'], ascending=[False, False]
+        )
+    else:
+        print(
+            f"User ID {user_id} not found. Providing content-based recommendations only.")
+        # Add a default column for user ratings as 0
+        recommended_items_details['User_Rating'] = 0
+
+        # Sort by similarity only
+        recommended_items_details = recommended_items_details.sort_values(
+            by=['Similarity'], ascending=False
+        )
 
     return recommended_items_details.head(top_n)
 
@@ -205,7 +231,7 @@ def search(search_term: str, target_user_id: int, top_n: int = Query()):
         # Sort recommendations by Weighted_Score in descending order
         combined_rec = combined_rec.sort_values(
             by="Weighted_Score", ascending=False
-        ).drop_duplicates(subset="ProdID")  # Ensure no duplicate items
+        ).drop_duplicates(subset="CProdId")  # Ensure no duplicate items
 
         # Clean and limit results to top 20
         cleaned_data = clean_df(combined_rec)
