@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+//connects to the database
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect("mongodb://localhost:27017/shopkart");

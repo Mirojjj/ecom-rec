@@ -25,8 +25,8 @@ const HomePage = () => {
         const params = searchQuery.trim()
           ? {
               search_term: searchQuery,
-              target_user_id: 123198317391723,
-              top_n: 20,
+              target_user_id: 100,
+              top_n: 80,
             }
           : {};
         const response = await axios.get(`${API_URL}${endpoint}`, { params });
@@ -48,8 +48,8 @@ const HomePage = () => {
 
   return (
     <div className="bg-white">
+      <Navbar onSearch={handleSearchProduct} />
       <div className="min-h-screen px-[6%]">
-        <Navbar onSearch={handleSearchProduct} />
         {/* Conditionally render the banner if no search query */}
         {!searchQuery && (
           <Box w="100%" p={4} color="white">

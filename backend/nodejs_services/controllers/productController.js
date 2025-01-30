@@ -162,11 +162,33 @@ async function deleteProduct(req, res) {
   }
 }
 
-async function fetchProductByID(req, res) {}
+async function fetchProductByID(req, res) {
+  const { id } = req.params; // Extract product ID from the request parameters
+
+  try {
+    // Read the CSV file
+    const products = await readCSV2();
+
+    // Find the product by ProdID
+    const product = products.find((product) => product.ProdID === id);
+
+    // If the product is not found, return a 404 error
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Return the product details as a JSON response
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 module.exports = {
   getProducts,
   addProduct,
   updateProduct,
   deleteProduct,
+  fetchProductByID,
 };
